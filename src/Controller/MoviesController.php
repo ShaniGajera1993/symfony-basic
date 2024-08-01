@@ -26,4 +26,13 @@ class MoviesController extends AbstractController
 
        return $this->render('index.html.twig', ['movies' => $movies]);
     }
+
+    #[Route('/movies/{id}', name: 'app_movies_show', methods: ['GET'])]
+    public function show(int $id): Response
+    {
+        $movieRepository = $this->entityManager->getRepository(Movie::class);
+        $movie = $movieRepository->find($id);
+
+        return $this->render('show.html.twig', ['movie' => $movie]);
+    }
 }
