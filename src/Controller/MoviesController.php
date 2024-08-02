@@ -9,7 +9,9 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Repository\MovieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Movie;
+use App\Form\MovieFormType;
 use Symfony\Component\HttpFoundation\Request;
+
 class MoviesController extends AbstractController
 {
     private $entityManager;
@@ -25,6 +27,25 @@ class MoviesController extends AbstractController
         $movies = $movieRepository->findAll();
 
        return $this->render('index.html.twig', ['movies' => $movies]);
+    }
+
+    #[Route('/movies/create', name: 'app_movies_create')]
+    public function create(Request $request): Response
+    {
+        $movie = new Movie();
+        $form = $this->createForm(MovieFormType::class, $movie);
+        
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $newMovie = $form->getData();
+            $this->entityManager->persist($newMovie);
+            $this->entityManager->flush();
+
+            return $this->redirectToRoute('app_movies');
+        }
+
+        return $this->render('create.html.twig', ['form' => $form->createView()]);
     }
 
     #[Route('/movies/{id}', name: 'app_movies_show', methods: ['GET'])]
